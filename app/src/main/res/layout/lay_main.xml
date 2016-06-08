@@ -20,32 +20,39 @@
             android:layout_gravity="center_vertical"
             android:text="Unmatched Color: " />
 
+        <!--
+        Radio group for the 3 unmatched colors: red, green, and blue.
+        When the user selects any of the options, the unmatched colors of the cells will
+        change to the corresponding color and the board will be reset.
+        -->
         <RadioGroup
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:onClick="changeColor"
             android:orientation="horizontal">
 
             <RadioButton
-                android:tag="@color/red"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:onClick="changeColor"
+                android:tag="RED"
                 android:text="Red"
-                android:textColor="@color/red"/>
+                android:textColor="@color/red" />
 
             <RadioButton
-                android:tag="@color/green"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:onClick="changeColor"
+                android:tag="GREEN"
                 android:text="Green"
-                android:textColor="@color/green"/>
+                android:textColor="@color/green" />
 
             <RadioButton
-                android:tag="@color/blue"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:onClick="changeColor"
+                android:tag="BLUE"
                 android:text="Blue"
-                android:textColor="@color/blue"/>
+                android:textColor="@color/blue" />
 
         </RadioGroup>
     </LinearLayout>
@@ -87,94 +94,107 @@
         </LinearLayout>
     </LinearLayout>
 
+    <!--
+        12 cells in a grid of 4 columns across and 3 rows down. These cells
+        will hold the images for the 6 unique images.
+    -->
     <LinearLayout
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="5dp">
+        android:layout_height="wrap_content">
 
-        <ImageButton
+        <ImageView
             android:id="@+id/cell1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:onClick="matchImage" />
+            android:onClick="matchImage"
+            android:padding="5dp"/>
 
-        <ImageButton
+        <ImageView
             android:id="@+id/cell2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:onClick="matchImage" />
+            android:onClick="matchImage"
+            android:padding="5dp"/>
 
-        <ImageButton
+        <ImageView
             android:id="@+id/cell3"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:onClick="matchImage" />
+            android:onClick="matchImage"
+            android:padding="5dp"/>
 
-        <ImageButton
+        <ImageView
             android:id="@+id/cell4"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:onClick="matchImage" />
+            android:onClick="matchImage"
+            android:padding="5dp"/>
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="5dp">
+        android:layout_height="wrap_content">
 
-        <ImageButton
+        <ImageView
             android:id="@+id/cell5"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:onClick="matchImage" />
+            android:onClick="matchImage"
+            android:padding="5dp"/>
 
-        <ImageButton
+        <ImageView
             android:id="@+id/cell6"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:onClick="matchImage" />
+            android:onClick="matchImage"
+            android:padding="5dp"/>
 
-        <ImageButton
+        <ImageView
             android:id="@+id/cell7"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:onClick="matchImage" />
+            android:onClick="matchImage"
+            android:padding="5dp"/>
 
-        <ImageButton
+        <ImageView
             android:id="@+id/cell8"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:onClick="matchImage" />
+            android:onClick="matchImage"
+            android:padding="5dp"/>
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="5dp">
+        android:layout_height="wrap_content">
 
-        <ImageButton
+        <ImageView
             android:id="@+id/cell9"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:onClick="matchImage" />
+            android:onClick="matchImage"
+            android:padding="5dp"/>
 
-        <ImageButton
+        <ImageView
             android:id="@+id/cell10"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:onClick="matchImage" />
+            android:onClick="matchImage"
+            android:padding="5dp"/>
 
-        <ImageButton
+        <ImageView
             android:id="@+id/cell11"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:onClick="matchImage" />
+            android:onClick="matchImage"
+            android:padding="5dp"/>
 
-        <ImageButton
+        <ImageView
             android:id="@+id/cell12"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:onClick="matchImage" />
+            android:onClick="matchImage"
+            android:padding="5dp"/>
     </LinearLayout>
 
     <LinearLayout
@@ -196,8 +216,8 @@
             android:paddingEnd="10dp"
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
-            android:textSize="20sp"
-            tools:text="3" />
+            android:text="0"
+            android:textSize="20sp" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -212,8 +232,8 @@
             android:paddingEnd="10dp"
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
-            android:textSize="20sp"
-            tools:text="0" />
+            android:text="0"
+            android:textSize="20sp" />
 
     </LinearLayout>
 

@@ -1,12 +1,16 @@
 package wsu.csc5991.memorymatcher;
 
-import android.support.v4.content.ContextCompat;
+import android.content.DialogInterface;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.View;
-import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.NumberPicker;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -14,22 +18,32 @@ import java.util.Collections;
 public class ActMain extends AppCompatActivity {
 
     private NumberPicker numberPicker;
+
+    // Constants for numberPicker DP settings
     static final private int MIN_DP = 20;
     static final private int STARTING_DP = 60;
     static final private int MAX_DP = 120;
 
+    // Constants for size of cells and images
     static final private int NUM_CELLS = 12;
     static final private int NUM_IMAGES = 6;
 
-    private ImageButton[] cells;
+    private ImageView[] cells;
     private int[] images;
 
-    private ImageButton currentImageButton;
-    private ImageButton previousImageButton;
+    private ImageView currentImageView;
+    private ImageView previousImageView;
 
+    // Whether or not the current 2 selected cells are a match
+    private boolean isMatch;
+
+    // How many cells are consecutively selected by the user
     private int selectedCells = 0;
 
+    // Textviews and values for number of tries and matches
+    private TextView tvNumTries;
     private int tries = 0;
+    private TextView tvNumMatches;
     private int matches = 0;
 
     private double DPtoPXconversionFactor;
@@ -45,15 +59,20 @@ public class ActMain extends AppCompatActivity {
 
         DPtoPXconversionFactor = getApplicationContext().getResources().getDisplayMetrics().densityDpi / 160.;
 
+        // Initialize textviews for number of tries and matches.
+        tvNumTries = (TextView) findViewById(R.id.tvNumTries);
+        tvNumMatches = (TextView) findViewById(R.id.tvNumMatches);
+
         // Initialize the numberPicker.
         numberPicker = (NumberPicker) findViewById(R.id.dpPicker);
         numberPicker.setMinValue(MIN_DP);
         numberPicker.setValue(STARTING_DP);
+        numberPicker.setSelected(false);
         numberPicker.setMaxValue(MAX_DP);
         numberPicker.setWrapSelectorWheel(false);
 
         // Initialize the cells and their image pointers
-        cells = new ImageButton[NUM_CELLS];
+        cells = new ImageView[NUM_CELLS];
         setImageButtons();
         setCellsDP(STARTING_DP * DPtoPXconversionFactor);
 
@@ -73,18 +92,18 @@ public class ActMain extends AppCompatActivity {
     }
 
     public void setImageButtons() {
-        cells[0] = (ImageButton) findViewById(R.id.cell1);
-        cells[1] = (ImageButton) findViewById(R.id.cell2);
-        cells[2] = (ImageButton) findViewById(R.id.cell3);
-        cells[3] = (ImageButton) findViewById(R.id.cell4);
-        cells[4] = (ImageButton) findViewById(R.id.cell5);
-        cells[5] = (ImageButton) findViewById(R.id.cell6);
-        cells[6] = (ImageButton) findViewById(R.id.cell7);
-        cells[7] = (ImageButton) findViewById(R.id.cell8);
-        cells[8] = (ImageButton) findViewById(R.id.cell9);
-        cells[9] = (ImageButton) findViewById(R.id.cell10);
-        cells[10] = (ImageButton) findViewById(R.id.cell11);
-        cells[11] = (ImageButton) findViewById(R.id.cell12);
+        cells[0] = (ImageView) findViewById(R.id.cell1);
+        cells[1] = (ImageView) findViewById(R.id.cell2);
+        cells[2] = (ImageView) findViewById(R.id.cell3);
+        cells[3] = (ImageView) findViewById(R.id.cell4);
+        cells[4] = (ImageView) findViewById(R.id.cell5);
+        cells[5] = (ImageView) findViewById(R.id.cell6);
+        cells[6] = (ImageView) findViewById(R.id.cell7);
+        cells[7] = (ImageView) findViewById(R.id.cell8);
+        cells[8] = (ImageView) findViewById(R.id.cell9);
+        cells[9] = (ImageView) findViewById(R.id.cell10);
+        cells[10] = (ImageView) findViewById(R.id.cell11);
+        cells[11] = (ImageView) findViewById(R.id.cell12);
     }
 
     public void initializeImages() {
@@ -124,13 +143,29 @@ public class ActMain extends AppCompatActivity {
 
     // Change the color based on the tag of the radio button selected
     public void changeColor(View view) {
-        unmatchedColor = (int) view.getTag();
+        if (view.getTag().equals("RED")) {
+            unmatchedColor = R.color.red;
+        } else if (view.getTag().equals("BLUE")) {
+            unmatchedColor = R.color.blue;
+        } else if (view.getTag().equals("GREEN")) {
+            unmatchedColor = R.color.green;
+        }
+
         resetBoard(view);
     }
 
     public void resetBoard(View view) {
         resetUnmatchedCells();
         randomizeImages();
+        tries = 0;
+        matches = 0;
+        tvNumTries.setText(String.valueOf(tries));
+        tvNumMatches.setText(String.valueOf(matches));
+        selectedCells = 0;
+
+        Toast toast = Toast.makeText(getApplicationContext(),"Board reset!", Toast.LENGTH_SHORT);
+        toast.setGravity(Gravity.BOTTOM, 0, 0);
+        toast.show();
     }
 
     public void resetUnmatchedCells() {
@@ -139,42 +174,94 @@ public class ActMain extends AppCompatActivity {
         }
     }
 
+    /**
+     * nextTry
+     *
+     * @param view The nextTry button.
+     *             This method is called when the user presses the button nextTry and 2 cells
+     *             have been selected. It will check if they were a match, and if so will set the background
+     *             of the matched cells to yellow. If they were not a match, then they will reset back to
+     *             the unmatched color.
+     */
     public void nextTry(View view) {
-        if ((int)currentImageButton.getTag() == (int)previousImageButton.getTag()) {
-            System.out.println("MATCH FOUND!");
-            currentImageButton.setImageResource(R.color.yellow);
-            previousImageButton.setImageResource(R.color.yellow);
+        // Set the matched buttons to yellow
+        if (isMatch) {
+            currentImageView.setImageResource(R.color.yellow);
+            previousImageView.setImageResource(R.color.yellow);
             matches++;
-        } else {
-            System.out.println("NO MATCH!");
-            currentImageButton.setImageResource(unmatchedColor);
-            previousImageButton.setImageResource(unmatchedColor);
+            tvNumMatches.setText(String.valueOf(matches));
         }
+        // Set the unmatched buttons back to the current unmatched color
+        else {
+            currentImageView.setImageResource(unmatchedColor);
+            previousImageView.setImageResource(unmatchedColor);
+        }
+
+        // Increase and set number of tries
+        tries++;
+        tvNumTries.setText(String.valueOf(tries));
+
+        // Reset number of cells selected
         selectedCells = 0;
     }
 
+    /**
+     * matchImage
+     *
+     * @param view The latest selected cell the user selects.
+     *             If 2 different cells are selected consecutively, then we check if they are a
+     *             match by the tags set. If it is a match, then we open a dialog telling the user
+     *             they have successfully found a match. Otherwise, we tell them it is not a match.
+     *             After the user closes the dialog, then to continue they must hit Next Try.
+     */
     public void matchImage(View view) {
         selectedCells++;
 
         // Ignore if the user selects more than 2 cells
         if (selectedCells <= 2) {
-            tries++;
             // Change the image to the corresponding tag
-            currentImageButton = (ImageButton) findViewById(view.getId());
-            currentImageButton.setImageResource((int) currentImageButton.getTag());
+            currentImageView = (ImageView) findViewById(view.getId());
+            currentImageView.setImageResource((int) currentImageView.getTag());
 
             if (selectedCells == 1) {
-                previousImageButton = currentImageButton;
+                previousImageView = currentImageView;
             } else if (selectedCells == 2) {
-                System.out.println("currTag: " + currentImageButton.getTag());
-                System.out.println("prevTag: " + previousImageButton.getTag());
-                if ((int)currentImageButton.getTag() == (int)previousImageButton.getTag()) {
-                    System.out.println("MATCH FOUND!");
-                } else {
-                    System.out.println("NO MATCH!");
-                }
+                // Check if the currentButton being selected has the same tag as the previous
+                isMatch = ((int) currentImageView.getTag() == (int) previousImageView.getTag());
+                displayDialog();
             }
         }
+    }
 
+    /**
+     * displayDialog
+     * Displays the appropriate dialog message to the user to tell them whether or not
+     * the cells they selected were a match.
+     */
+    public void displayDialog() {
+        String title;
+        String message;
+
+        if (isMatch) {
+            title = "Success!";
+            message = "Match Found! Good job, keep it up!";
+        } else {
+            title = "Nope!";
+            message = "Not a match! Try again!";
+        }
+
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(title);
+        builder.setMessage(message);
+
+        builder.setPositiveButton("OK",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int option) {
+                        dialog.cancel();
+                    }
+                }
+        );
+
+        builder.show();
     }
 }
