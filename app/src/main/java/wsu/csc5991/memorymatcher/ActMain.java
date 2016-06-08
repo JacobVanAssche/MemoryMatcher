@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.NumberPicker;
@@ -34,6 +35,8 @@ public class ActMain extends AppCompatActivity {
     private ImageView currentImageView;
     private ImageView previousImageView;
 
+    private Button btnNextTry;
+
     // Whether or not the current 2 selected cells are a match
     private boolean isMatch;
 
@@ -55,9 +58,15 @@ public class ActMain extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.lay_main);
 
+        // Default the unmatched color to red.
         unmatchedColor = R.color.red;
 
-        DPtoPXconversionFactor = getApplicationContext().getResources().getDisplayMetrics().densityDpi / 160.;
+        // Initialize the conversion factor used for changing the DP.
+        DPtoPXconversionFactor =
+                getApplicationContext().getResources().getDisplayMetrics().densityDpi / 160.;
+
+        // Initialize the nextTry button.
+        btnNextTry = (Button) findViewById(R.id.btnNextTry);
 
         // Initialize textviews for number of tries and matches.
         tvNumTries = (TextView) findViewById(R.id.tvNumTries);
@@ -73,7 +82,7 @@ public class ActMain extends AppCompatActivity {
 
         // Initialize the cells and their image pointers
         cells = new ImageView[NUM_CELLS];
-        setImageButtons();
+        setImageViews();
         setCellsDP(STARTING_DP * DPtoPXconversionFactor);
 
         // Initialize the images and set the images to each of the cells.
@@ -91,7 +100,7 @@ public class ActMain extends AppCompatActivity {
         });
     }
 
-    public void setImageButtons() {
+    public void setImageViews() {
         cells[0] = (ImageView) findViewById(R.id.cell1);
         cells[1] = (ImageView) findViewById(R.id.cell2);
         cells[2] = (ImageView) findViewById(R.id.cell3);
@@ -163,7 +172,7 @@ public class ActMain extends AppCompatActivity {
         tvNumMatches.setText(String.valueOf(matches));
         selectedCells = 0;
 
-        Toast toast = Toast.makeText(getApplicationContext(),"Board reset!", Toast.LENGTH_SHORT);
+        Toast toast = Toast.makeText(getApplicationContext(), "Board reset!", Toast.LENGTH_SHORT);
         toast.setGravity(Gravity.BOTTOM, 0, 0);
         toast.show();
     }
@@ -186,10 +195,19 @@ public class ActMain extends AppCompatActivity {
     public void nextTry(View view) {
         // Set the matched buttons to yellow
         if (isMatch) {
+            // Disable the cells and set their colors
+            currentImageView.setEnabled(false);
+            previousImageView.setEnabled(false);
             currentImageView.setImageResource(R.color.yellow);
             previousImageView.setImageResource(R.color.yellow);
+
             matches++;
             tvNumMatches.setText(String.valueOf(matches));
+
+            // If user matches all of the images, then show that they won!
+            if (matches == NUM_IMAGES) {
+                displayVictory();
+            }
         }
         // Set the unmatched buttons back to the current unmatched color
         else {
@@ -203,6 +221,9 @@ public class ActMain extends AppCompatActivity {
 
         // Reset number of cells selected
         selectedCells = 0;
+
+        // Disable the button
+        btnNextTry.setEnabled(false);
     }
 
     /**
@@ -216,29 +237,30 @@ public class ActMain extends AppCompatActivity {
      */
     public void matchImage(View view) {
         selectedCells++;
+        // Change the image to the corresponding tag
+        currentImageView = (ImageView) findViewById(view.getId());
+        currentImageView.setImageResource((int) currentImageView.getTag());
 
-        // Ignore if the user selects more than 2 cells
-        if (selectedCells <= 2) {
-            // Change the image to the corresponding tag
-            currentImageView = (ImageView) findViewById(view.getId());
-            currentImageView.setImageResource((int) currentImageView.getTag());
-
-            if (selectedCells == 1) {
-                previousImageView = currentImageView;
-            } else if (selectedCells == 2) {
+        if (selectedCells >= 2){
+            // If the user selects 2 cells that are NOT the same, then check if they are a match
+            if (currentImageView.getId() != previousImageView.getId()) {
                 // Check if the currentButton being selected has the same tag as the previous
                 isMatch = ((int) currentImageView.getTag() == (int) previousImageView.getTag());
-                displayDialog();
+                displayMatchDialog();
+                btnNextTry.setEnabled(true);
             }
+        }
+        else {
+            previousImageView = currentImageView;
         }
     }
 
     /**
-     * displayDialog
+     * displayMatchDialog
      * Displays the appropriate dialog message to the user to tell them whether or not
      * the cells they selected were a match.
      */
-    public void displayDialog() {
+    public void displayMatchDialog() {
         String title;
         String message;
 
@@ -253,6 +275,26 @@ public class ActMain extends AppCompatActivity {
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(title);
         builder.setMessage(message);
+
+        builder.setPositiveButton("OK",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int option) {
+                        dialog.cancel();
+                    }
+                }
+        );
+
+        builder.show();
+    }
+
+    /**
+     * displayVictory
+     * Displays that the user matched all of the images!
+     */
+    public void displayVictory() {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("You win!");
+        builder.setMessage("Congratulations, you matched all of the images!");
 
         builder.setPositiveButton("OK",
                 new DialogInterface.OnClickListener() {
