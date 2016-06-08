@@ -46,9 +46,12 @@ public class ActMain extends AppCompatActivity {
     static final private int NUM_CELLS = 12;
     static final private int NUM_IMAGES = 6;
 
+    // ImageViews for each of the cells
     private ImageView[] cells;
+    // The IDs of the drawable resources for the images to be placed on the cells
     private int[] images;
 
+    // Used for when the user selects one of the cells, and then another for determining a match
     private ImageView currentImageView;
     private ImageView previousImageView;
 
