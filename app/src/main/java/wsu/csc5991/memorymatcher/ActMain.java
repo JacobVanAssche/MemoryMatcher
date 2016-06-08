@@ -1,3 +1,20 @@
+//==============================================================
+/**
+ Title:       MemoryMatcher
+ Course:      CSC 5991 – Mobile Application Development
+ Application: 2
+ Author:      Jacob VanAssche
+ Date:        6-08-2016
+ Description:
+ This application will test the user's memory. The application has a grid of twelve cells
+ hiding six images. The application randomizes where the images are hidden.  The user picks one
+ cell to reveal its image and then picks another cell to reveal its image. If the two images match,
+ the two cells are marked as matched.  If the two images don’t match, the two cells continue to
+ be marked as unmatched. This process will continue until the user correctly matches up all of the
+ images.
+ */
+//==============================================================
+
 package wsu.csc5991.memorymatcher;
 
 import android.content.DialogInterface;
@@ -53,6 +70,12 @@ public class ActMain extends AppCompatActivity {
 
     private int unmatchedColor;
 
+    //==============================================================
+    /**
+     * onCreate
+     * Initialize each of the TextViews, ImageViews, and set up the game by randomizing the cells.
+     */
+    //==============================================================
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -100,6 +123,12 @@ public class ActMain extends AppCompatActivity {
         });
     }
 
+    //==============================================================
+    /**
+     * setImageViews
+     * This method initializes all of the image view cells to each of the cells on the XML
+     */
+    //==============================================================
     public void setImageViews() {
         cells[0] = (ImageView) findViewById(R.id.cell1);
         cells[1] = (ImageView) findViewById(R.id.cell2);
@@ -115,6 +144,24 @@ public class ActMain extends AppCompatActivity {
         cells[11] = (ImageView) findViewById(R.id.cell12);
     }
 
+    //==============================================================
+    /**
+     * enableAllImageViews
+     * This method will enable all of the imageviews so that the user can click them again.
+     */
+    //==============================================================
+    public void enableAllImageViews() {
+        for (int i = 0; i < cells.length; i++) {
+            cells[i].setEnabled(true);
+        }
+    }
+
+    //==============================================================
+    /**
+     * initializeImages
+     * This method will initialize the images to the drawable resources.
+     */
+    //==============================================================
     public void initializeImages() {
         images = new int[NUM_IMAGES];
         images[0] = R.drawable.cheeseburger;
@@ -125,6 +172,13 @@ public class ActMain extends AppCompatActivity {
         images[5] = R.drawable.soda_pop;
     }
 
+    //==============================================================
+    /**
+     * randomizeImages
+     * This method will randomize which images will be on each of the cells. Each cell will be
+     * associated with a tag that will keep track of which image corresponds to each cell.
+     */
+    //==============================================================
     public void randomizeImages() {
         // Shuffle the cells array
         Collections.shuffle(Arrays.asList(cells));
@@ -134,14 +188,22 @@ public class ActMain extends AppCompatActivity {
         for (int i = 0; i < cells.length; i++) {
             cells[i].setTag(images[imagesIndex++]);
 
+            // After iterating through the images once, reset to apply the second matches
             if (imagesIndex == images.length) {
                 imagesIndex = 0;
             }
         }
     }
 
+    //==============================================================
+    /**
+     * setCellsDP
+     * @param newDP What to set the DP of the cells to.
+     *              This method will set the DP of all of the cells to the specified DP.
+     */
+    //==============================================================
     public void setCellsDP(double newDP) {
-        // Set the DP
+        // Iterate through all the cells and set the DP
         for (int i = 0; i < cells.length; i++) {
             LinearLayout.LayoutParams parms = (LinearLayout.LayoutParams) cells[i].getLayoutParams();
             parms.width = (int) (newDP);
@@ -150,7 +212,13 @@ public class ActMain extends AppCompatActivity {
         }
     }
 
-    // Change the color based on the tag of the radio button selected
+    //==============================================================
+    /**
+     *
+     * @param view The radioButton selected.
+     *             Change the color based on the tag of the radio button selected.
+     */
+    //==============================================================
     public void changeColor(View view) {
         if (view.getTag().equals("RED")) {
             unmatchedColor = R.color.red;
@@ -163,13 +231,25 @@ public class ActMain extends AppCompatActivity {
         resetBoard(view);
     }
 
+    //==============================================================
+    /**
+     * resetBoard
+     *
+     * @param view The resetBoard button.
+     *             This method is called when the user presses the resetBoard button.
+     *             All the necessary variables will be reset and a toast message will appear
+     *             notifying that the board/cells have been reset and randomized.
+     */
+    //==============================================================
     public void resetBoard(View view) {
         resetUnmatchedCells();
         randomizeImages();
+        enableAllImageViews();
         tries = 0;
         matches = 0;
         tvNumTries.setText(String.valueOf(tries));
         tvNumMatches.setText(String.valueOf(matches));
+        btnNextTry.setEnabled(false);
         selectedCells = 0;
 
         Toast toast = Toast.makeText(getApplicationContext(), "Board reset!", Toast.LENGTH_SHORT);
@@ -177,12 +257,19 @@ public class ActMain extends AppCompatActivity {
         toast.show();
     }
 
+    //==============================================================
+    /**
+     * resetUnmatchedCells
+     * This method will change all of the cells to the unmatched color currently set.
+     */
+    //==============================================================
     public void resetUnmatchedCells() {
         for (int i = 0; i < cells.length; i++) {
             cells[i].setImageResource(unmatchedColor);
         }
     }
 
+    //==============================================================
     /**
      * nextTry
      *
@@ -192,6 +279,7 @@ public class ActMain extends AppCompatActivity {
      *             of the matched cells to yellow. If they were not a match, then they will reset back to
      *             the unmatched color.
      */
+    //==============================================================
     public void nextTry(View view) {
         // Set the matched buttons to yellow
         if (isMatch) {
@@ -226,6 +314,7 @@ public class ActMain extends AppCompatActivity {
         btnNextTry.setEnabled(false);
     }
 
+    //==============================================================
     /**
      * matchImage
      *
@@ -235,31 +324,37 @@ public class ActMain extends AppCompatActivity {
      *             they have successfully found a match. Otherwise, we tell them it is not a match.
      *             After the user closes the dialog, then to continue they must hit Next Try.
      */
+    //==============================================================
     public void matchImage(View view) {
-        selectedCells++;
-        // Change the image to the corresponding tag
-        currentImageView = (ImageView) findViewById(view.getId());
-        currentImageView.setImageResource((int) currentImageView.getTag());
 
-        if (selectedCells >= 2){
-            // If the user selects 2 cells that are NOT the same, then check if they are a match
-            if (currentImageView.getId() != previousImageView.getId()) {
-                // Check if the currentButton being selected has the same tag as the previous
-                isMatch = ((int) currentImageView.getTag() == (int) previousImageView.getTag());
-                displayMatchDialog();
-                btnNextTry.setEnabled(true);
+        // Only allow the user to select cells when the nextTry button is NOT enabled
+        if (!btnNextTry.isEnabled()) {
+            selectedCells++;
+            // Change the image to the corresponding tag
+            currentImageView = (ImageView) findViewById(view.getId());
+            currentImageView.setImageResource((int) currentImageView.getTag());
+
+            if (selectedCells >= 2) {
+                // If the user selects 2 cells that are NOT the same, then check if they are a match
+                if (currentImageView.getId() != previousImageView.getId()) {
+                    // Check if the currentButton being selected has the same tag as the previous
+                    isMatch = ((int) currentImageView.getTag() == (int) previousImageView.getTag());
+                    displayMatchDialog();
+                    btnNextTry.setEnabled(true);
+                }
+            } else {
+                previousImageView = currentImageView;
             }
-        }
-        else {
-            previousImageView = currentImageView;
         }
     }
 
+    //==============================================================
     /**
      * displayMatchDialog
      * Displays the appropriate dialog message to the user to tell them whether or not
      * the cells they selected were a match.
      */
+    //==============================================================
     public void displayMatchDialog() {
         String title;
         String message;
@@ -287,10 +382,12 @@ public class ActMain extends AppCompatActivity {
         builder.show();
     }
 
+    //==============================================================
     /**
      * displayVictory
      * Displays that the user matched all of the images!
      */
+    //==============================================================
     public void displayVictory() {
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("You win!");
