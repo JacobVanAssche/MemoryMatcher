@@ -68,6 +68,7 @@
             android:layout_gravity="center_vertical"
             android:text="Size (dp): " />
 
+        <!-- NumberPicker to change the DP of the cells -->
         <NumberPicker
             android:id="@+id/dpPicker"
             android:layout_width="wrap_content"
@@ -78,6 +79,8 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
+            <!-- Pressing the ResetBoard board will cause the cells to be randomized
+                and the game to be reset. -->
             <Button
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -85,6 +88,7 @@
                 android:text="Reset Board"
                 android:textAllCaps="false" />
 
+            <!-- This button will only be active when the user selects 2 cells consecutively. -->
             <Button
                 android:id="@+id/btnNextTry"
                 android:layout_width="match_parent"
@@ -211,6 +215,7 @@
             android:text="Tries: "
             android:textSize="20sp" />
 
+        <!-- Number of tries the user has taken to attempt to match the images -->
         <TextView
             android:id="@+id/tvNumTries"
             android:layout_width="wrap_content"
@@ -227,6 +232,8 @@
             android:text="Matches: "
             android:textSize="20sp" />
 
+        <!-- Number of current matches the user has made,
+        when they reach the max (6) they will win. -->
         <TextView
             android:id="@+id/tvNumMatches"
             android:layout_width="wrap_content"
